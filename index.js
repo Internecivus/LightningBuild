@@ -8,6 +8,7 @@ const nodeSass = require('node-sass');
 const path = require('path');
 const util = require('util');
 const babel = require('@babel/core');
+const sassGlobImporter = require('node-sass-glob-importer');
 
 /****** DEV ONLY! NOT PRODUCTION READY! ******/
 process.env.NODE_ENV = 'development';
@@ -215,6 +216,7 @@ class Configuration {
       file: this.cssMapping.entryFile,
       outFile: this.cssMapping.outputFile,
       sourceMap: this.useSourcemaps,
+      importer: sassGlobImporter,
     };
   }
 
