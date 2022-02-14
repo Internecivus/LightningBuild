@@ -8,7 +8,6 @@ const nodeSass = require('node-sass');
 const path = require('path');
 const util = require('util');
 const babel = require('@babel/core');
-const sassGlobImporter = require('node-sass-glob-importer');
 
 /****** DEV ONLY! NOT PRODUCTION READY! ******/
 process.env.NODE_ENV = 'development';
@@ -109,7 +108,7 @@ class Utils {
 
 class Configuration {
   async init() {
-    const userConfiguration = this.loadUserConfiguration();
+    const userConfiguration = await this.loadUserConfiguration();
 
     this._defaultMutableConfig();
     Utils.mergeDeep(this, this.defaultMutableConfig);
@@ -171,6 +170,7 @@ class Configuration {
       watchFolder: [this.sourceFolder],
       outputFolder: null,
       requestPathIndex: '/',
+      sassConfiguration: {},
       jsMapping: {
         sourceExtension: 'js',
         outputExtension: 'js',
@@ -216,7 +216,7 @@ class Configuration {
       file: this.cssMapping.entryFile,
       outFile: this.cssMapping.outputFile,
       sourceMap: this.useSourcemaps,
-      importer: sassGlobImporter,
+      ...this.sassConfiguration,
     };
   }
 
@@ -321,7 +321,7 @@ class Configuration {
     }
   };
 
-  loadUserConfiguration() {
+  async loadUserConfiguration() {
     for (let directoryName of Configuration.CONFIGURATION_FILE_LOCATIONS) {
       const directoryPath = path.resolve(directoryName);
       for (let fileName of fs.readdirSync(directoryPath)) {
@@ -329,7 +329,7 @@ class Configuration {
         const configFile = `${directoryPath}${path.sep}${fileName}`;
         if (matches && !fs.statSync(configFile).isDirectory()) {
           console.log(`Configuration file loaded: ${configFile}`);
-          return require(`${directoryName}/${fileName}`);
+          return await require(`${directoryName}/${fileName}`);
         }
       }
     }
